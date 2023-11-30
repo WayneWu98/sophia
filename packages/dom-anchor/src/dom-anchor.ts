@@ -3,7 +3,7 @@ import { getPath, diffDistance } from './utils'
 
 export default class DomAnchor {
   domTextMapper: DomTextMapper
-  diffingTolerance = 0.4
+  maxDiffingDistance = 0.4
   get root() {
     return document.body
   }
@@ -37,15 +37,15 @@ export default class DomAnchor {
       return range
     }
     range = this.matchBySurroundedText(textQuoteSelector)
-    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.diffingTolerance) {
+    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
       return range
     }
     range = this.fuzzyMatchBySurroundedText(textQuoteSelector)
-    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.diffingTolerance) {
+    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
       return range
     }
     range = this.fuzzyMatchByTextQuoteSelector(textQuoteSelector)
-    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.diffingTolerance) {
+    if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
       return range
     }
   }
