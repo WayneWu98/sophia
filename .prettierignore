@@ -1,0 +1,8 @@
+/docs
+**/*.yml
+**/*.sh
+**/*.md
+
+# Config File
+.eslintrc.cjs
+.prettierrc
