@@ -1,6 +1,16 @@
-import { fuzzySearch } from './utils'
+import { fuzzySearch, flatNodes } from './utils'
 
-const EXCLUDED_NODE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'CANVAS', 'SVG', 'HEAD'])
+const EXCLUDED_NODE = new Set<string | Node>([
+  'SCRIPT',
+  'STYLE',
+  'NOSCRIPT',
+  'IFRAME',
+  'OBJECT',
+  'EMBED',
+  'CANVAS',
+  'SVG',
+  'HEAD',
+])
 
 interface MatchingResult {
   node: Node
@@ -8,44 +18,31 @@ interface MatchingResult {
 }
 
 export default class DomTextMapper {
-  private excluded: Set<string>
-  private _flattedNodes: Node[]
-  private _text: string = ''
+  private excluded: Set<string | Node>
+  private nodes: Node[]
+  private _text?: string
   constructor(private root: HTMLElement) {
     this.excluded = new Set(EXCLUDED_NODE)
-    this.reset()
-  }
-  get flattedNodes() {
-    if (this._flattedNodes.length > 0) {
-      return this._flattedNodes
-    }
-    this._flattedNodes = []
-    this.traverse(({ node }) => {
-      if (this.excluded.has(node.nodeName)) {
-        return
-      }
-      this._flattedNodes.push(node)
-    })
-    return this._flattedNodes
+    this.generate()
   }
   get text() {
-    if (this._text.length > 0) {
+    if (this._text) {
       return this._text
     }
-    this.traverse(({ node }) => {
-      if (this.excluded.has(node.nodeName) || node.nodeType !== Node.TEXT_NODE) {
-        return
+    this._text = this.nodes.reduce((prev, node) => {
+      if (node.nodeType !== Node.TEXT_NODE) {
+        return prev
       }
-      this._text += node.textContent ?? ''
-    })
-    return this._text
+      return prev + node.textContent
+    }, '')
+    return this._text ?? ''
   }
   get length() {
     return this.text.length
   }
-  reset() {
+  generate() {
     this._text = ''
-    this._flattedNodes = []
+    this.nodes = flatNodes(this.root).filter(n => !(this.excluded.has(n.nodeName) || this.excluded.has(n)))
   }
   matchByOffset(offset: number): MatchingResult | undefined {
     if (offset < 0 || offset > this.text.length) {
@@ -53,16 +50,16 @@ export default class DomTextMapper {
     }
     let currentOffset = -1
     let lastTextNode: Text | undefined
-    this.traverse(({ node, stop }) => {
-      if (node.nodeType !== Node.TEXT_NODE || this.excluded.has(node.nodeName)) {
-        return
+    for (const n of this.nodes) {
+      if (n.nodeType !== Node.TEXT_NODE) {
+        continue
       }
       if (currentOffset >= offset) {
-        return stop()
+        break
       }
-      lastTextNode = node as Text
-      currentOffset += node.textContent?.length ?? 0
-    })
+      lastTextNode = n as Text
+      currentOffset += n.textContent?.length ?? 0
+    }
     if (currentOffset >= offset && lastTextNode) {
       return {
         node: lastTextNode,
@@ -96,7 +93,7 @@ export default class DomTextMapper {
   }
   getTextPosition(node: Text) {
     let currentOffset = 0
-    for (const n of this.flattedNodes) {
+    for (const n of this.nodes) {
       if (n.nodeType !== Node.TEXT_NODE) {
         continue
       }
@@ -108,7 +105,7 @@ export default class DomTextMapper {
   }
   getTextPositionAfter(node: Node) {
     let currentOffset = 0
-    for (const n of this.flattedNodes) {
+    for (const n of this.nodes) {
       if (n === node) {
         return currentOffset + 1
       }
@@ -119,7 +116,7 @@ export default class DomTextMapper {
   }
   getTextPositionBefore(node: Node) {
     let currentOffset = 0
-    for (const n of this.flattedNodes) {
+    for (const n of this.nodes) {
       if (n === node) {
         return currentOffset
       }
@@ -139,22 +136,5 @@ export default class DomTextMapper {
       node = [node]
     }
     node.forEach(n => this.excluded.delete(n))
-  }
-  traverse(cb: (prams: { node: Node; index: number; depth: number; stop: () => void }) => void) {
-    let index = 0
-    let stopped = false
-    const stop = () => {
-      stopped = true
-    }
-    const _traverse = (node: Node, depth = 0) => {
-      if (stopped) return
-      cb({ node, index: index++, depth, stop })
-      if (node.childNodes.length > 0) {
-        for (const n of node.childNodes) {
-          _traverse(n, depth + 1)
-        }
-      }
-    }
-    _traverse(this.root)
   }
 }

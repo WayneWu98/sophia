@@ -15,10 +15,9 @@ const records: Selector[][] = (window.records = [])
 
 setTimeout(() => {
   const anchor = (window.anchor = new DomAnchor(document.body))
-  anchor.generate()
-  console.log('generated')
   const s = JSON.parse(
     '[{"endContainer":"/html/body/div/div/p/text()[2]","endOffset":7,"startContainer":"/html/body/div/h4/text()[2]","startOffset":3,"type":"RangeSelector"},{"end":41,"start":15,"type":"TextPositionSelector"},{"exact":"actEdit src/App.tsx and sa","prefix":"  Vite ++ Re","suffix":"ve to test H","type":"TextQuoteSelector"}]'
   )
+  console.log('generated')
   console.log('matched: ', anchor.match(s)?.toString())
 }, 1000)

@@ -2,14 +2,16 @@ import DomTextMapper from './dom-text-mapper'
 import { getPath, diffDistance, escapeRegExp, devLog } from './utils'
 
 export default class DomAnchor {
-  domTextMapper: DomTextMapper
+  readonly domTextMapper: DomTextMapper
   maxDiffingDistance = 0.4
   get root() {
     return document.body
   }
   constructor() {
     this.domTextMapper = new DomTextMapper(this.root)
-    this.domTextMapper.reset()
+  }
+  generate() {
+    this.domTextMapper.generate()
   }
   match(selectors: Selector[]) {
     let rangeSelector: RangeSelector | null = null

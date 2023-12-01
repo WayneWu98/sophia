@@ -93,6 +93,20 @@ export const findTextNodes = (node: Node | Node[], excluded?: Set<string>) => {
   return nodes
 }
 
+export const flatNodes = (node: Node | Node[]) => {
+  if (!Array.isArray(node)) {
+    node = [node]
+  }
+  const nodes: Node[] = []
+  for (const n of node) {
+    nodes.push(n)
+    for (const child of n.childNodes) {
+      nodes.push(...flatNodes(child))
+    }
+  }
+  return nodes
+}
+
 export const escapeRegExp = (string: string, mode = '') => {
   return new RegExp(string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), mode)
 }

@@ -1,0 +1,30 @@
+{
+  "name": "@sophia/extension",
+  "version": "1.0.0",
+  "description": "An Chrome extension for Sophia.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --watch src/ --exec \"pnpm run build\" --ext ts,tsx,json",
+    "build": "vite-node scripts/build.ts",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test:ui": "vitest --ui",
+    "test": "vitest -c vite.config.background.ts",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "npm run build"
+  },
+  "keywords": [],
+  "author": "Wayne Wu <wayne-wu@outlook.com> (https://wayne-wu.com/)",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "^0.0.253",
+    "@unocss/preset-wind": "^0.57.7",
+    "@unocss/transformer-variant-group": "^0.57.7",
+    "autoprefixer": "^10.4.16",
+    "sass": "^1.69.5",
+    "unocss": "^0.57.7"
+  },
+  "dependencies": {
+    "@sophia/shared": "workspace:^",
+    "classnames": "^2.3.2"
+  }
+}
