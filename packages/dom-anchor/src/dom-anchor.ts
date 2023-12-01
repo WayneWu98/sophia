@@ -1,5 +1,5 @@
 import DomTextMapper from './dom-text-mapper'
-import { getPath, diffDistance } from './utils'
+import { getPath, diffDistance, escapeRegExp, devLog } from './utils'
 
 export default class DomAnchor {
   domTextMapper: DomTextMapper
@@ -9,7 +9,7 @@ export default class DomAnchor {
   }
   constructor() {
     this.domTextMapper = new DomTextMapper(this.root)
-    this.domTextMapper.generate()
+    this.domTextMapper.reset()
   }
   match(selectors: Selector[]) {
     let rangeSelector: RangeSelector | null = null
@@ -30,22 +30,27 @@ export default class DomAnchor {
     }
     let range = this.matchByRangeSelector(rangeSelector)
     if (range && range.toString() === textQuoteSelector.exact) {
+      devLog('matchByRangeSelector')
       return range
     }
     range = this.matchByTextPositionSelector(textPositionSelector)
     if (range && range.toString() === textQuoteSelector.exact) {
+      devLog('matchByTextPositionSelector')
       return range
     }
     range = this.matchBySurroundedText(textQuoteSelector)
     if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
+      devLog('matchBySurroundedText')
       return range
     }
     range = this.fuzzyMatchBySurroundedText(textQuoteSelector)
     if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
+      devLog('fuzzyMatchBySurroundedText')
       return range
     }
     range = this.fuzzyMatchByTextQuoteSelector(textQuoteSelector)
     if (range && diffDistance(range.toString(), textQuoteSelector.exact) < this.maxDiffingDistance) {
+      devLog('fuzzyMatchByTextQuoteSelector')
       return range
     }
   }
@@ -87,10 +92,10 @@ export default class DomAnchor {
   matchBySurroundedText({ prefix, suffix, exact }: TextQuoteSelector) {
     prefix = prefix.trimStart()
     suffix = suffix.trimEnd()
-    const startOffset: number[] = [...this.domTextMapper.text.matchAll(new RegExp(prefix, 'gi'))]
+    const startOffset: number[] = [...this.domTextMapper.text.matchAll(escapeRegExp(prefix, 'gi'))]
       .filter(v => v.index)
       .map(v => v.index! + prefix.length)
-    const endOffset: number[] = [...this.domTextMapper.text.matchAll(new RegExp(suffix, 'gi'))]
+    const endOffset: number[] = [...this.domTextMapper.text.matchAll(escapeRegExp(suffix, 'gi'))]
       .filter(v => v.index)
       .map(v => v.index!)
     if (startOffset.length == 0 || endOffset.length === 0) return
@@ -183,23 +188,23 @@ export default class DomAnchor {
     let start: number | undefined
     let end: number | undefined
     if (startNode.nodeType === Node.TEXT_NODE) {
-      const pos = this.domTextMapper.getTextNodePosition(startNode as Text)
+      const pos = this.domTextMapper.getTextPosition(startNode as Text)
       if (pos !== void 0) {
         start = pos + range.startOffset
       }
     } else {
-      const pos = this.domTextMapper.getTextNodePositionAfter(startNode.childNodes[range.startOffset])
+      const pos = this.domTextMapper.getTextPositionAfter(startNode.childNodes[range.startOffset])
       if (pos !== void 0) {
         start = pos
       }
     }
     if (endNode.nodeType === Node.TEXT_NODE) {
-      const pos = this.domTextMapper.getTextNodePosition(endNode as Text)
+      const pos = this.domTextMapper.getTextPosition(endNode as Text)
       if (pos !== void 0) {
         end = pos + range.endOffset
       }
     } else {
-      const pos = this.domTextMapper.getTextNodePositionAfter(endNode.childNodes[range.endOffset])
+      const pos = this.domTextMapper.getTextPositionAfter(endNode.childNodes[range.endOffset])
       if (pos !== void 0) {
         end = pos
       }
