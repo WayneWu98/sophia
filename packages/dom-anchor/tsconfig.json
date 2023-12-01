@@ -17,14 +17,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": { "@/*": ["./src/*"], "*": ["./src/*", "./node_modules/*"] },
-    "types": ["vitest/globals", "./src/typings", "@types/diff-match-patch"],
+    "types": ["vitest/globals", "@types/diff-match-patch", "@sophia/shared/typings/anchor-selector"],
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -2,6 +2,11 @@ import { fuzzySearch } from './utils'
 
 const EXCLUDED_NODE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'CANVAS', 'SVG', 'HEAD'])
 
+interface MatchingResult {
+  node: Node
+  offset: number
+}
+
 export default class DomTextMapper {
   private excluded: Set<string>
   private _flattedNodes: Node[]

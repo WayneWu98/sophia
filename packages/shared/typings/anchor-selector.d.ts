@@ -20,12 +20,3 @@ interface TextQuoteSelector {
 }
 
 type Selector = RangeSelector | TextPositionSelector | TextQuoteSelector
-
-interface MatchingResult {
-  node: Node
-  offset: number
-}
-
-interface MatchingAnchor {
-  range: Range
-}
