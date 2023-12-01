@@ -1,7 +1,7 @@
 {
   "name": "@sophia/dom-anchor",
   "version": "1.0.0",
-  "description": "",
+  "description": "Anchor for record and re-attach dom nodes",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "type": "module",
@@ -14,7 +14,7 @@
     "postinstall": "npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "Wayne Wu <wayne-wu@outlook.com> (https://wayne-wu.com/)",
   "license": "ISC",
   "dependencies": {
     "@sophia/shared": "workspace:*",
