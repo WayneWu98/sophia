@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -134,12 +130,6 @@ importers:
       unocss:
         specifier: ^0.57.7
         version: 0.57.7(postcss@8.4.31)(vite@5.0.2)
-
-  packages/matcher:
-    dependencies:
-      '@sophia/shared':
-        specifier: workspace:*
-        version: link:../shared
 
   packages/shared:
     dependencies:
@@ -7739,3 +7729,7 @@ packages:
     optionalDependencies:
       commander: 9.5.0
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
