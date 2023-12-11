@@ -112,7 +112,7 @@ export const escapeRegExp = (string: string, mode = '') => {
 }
 
 export const devLog = (...args: any[]) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.log(...args)
   }
 }
