@@ -1,0 +1,10 @@
+[server]
+host = "0.0.0.0"
+port = 8080
+
+[jwt]
+secret = "secret"
+expiration = 3600
+
+[db]
+url = "mysql://sphia:123456@localhost/sophia"
