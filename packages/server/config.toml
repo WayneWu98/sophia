@@ -7,4 +7,8 @@ secret = "secret"
 expiration = 3600
 
 [db]
-url = "mysql://sphia:123456@localhost/sophia"
+url = "mysql://sophia:123456@localhost/sophia"
+
+[log]
+level = "trace" # trace, debug, info, warn, error, fatal, panic
+path = "./logs"

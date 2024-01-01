@@ -1,3 +1,8 @@
+use axum::{
+    http::StatusCode,
+    response::{self, IntoResponse},
+    Json,
+};
 use enum_meta::Meta;
 use serde::Serialize;
 
@@ -6,25 +11,33 @@ use super::error::UserFacingError;
 #[derive(Serialize, Debug, Default)]
 pub struct ResponseCode(i32);
 
-#[derive(Serialize, Debug)]
+#[rustfmt::skip]
+#[derive(Debug)]
 /**
- * ResponseStatus is a tuple of (http_code, response_code, message)
+ * ResponseStatus is a tuple of (http_status, response_status, message)
  */
 pub struct ResponseStatus(
-    /** HTTP Status */ pub u16,
-    /** Response Code */ pub ResponseCode,
-    /** Message */ pub String,
+    /** Response Code */
+    pub ResponseCode,
+    /** Message */ 
+    pub String,
+    /** HTTP Status */
+    pub StatusCode,
 );
 
 impl Default for ResponseStatus {
     fn default() -> Self {
-        ResponseStatus(200, ResponseCode(0), "OK".to_owned())
+        ResponseStatus(ResponseCode(0), "OK".to_owned(), StatusCode::OK)
     }
 }
 
 impl ResponseStatus {
     pub fn internal_error() -> Self {
-        ResponseStatus(500, ResponseCode(5000), "Internal Error".to_owned())
+        ResponseStatus(
+            ResponseCode(5000),
+            "Internal Error".to_owned(),
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
     }
 }
 
@@ -34,13 +47,9 @@ impl From<UserFacingError> for ResponseStatus {
     }
 }
 
-impl From<(u16, usize, &str)> for ResponseStatus {
-    fn from(value: (u16, usize, &str)) -> Self {
-        ResponseStatus(
-            value.0 as u16,
-            ResponseCode(value.1 as i32),
-            value.2.to_owned(),
-        )
+impl From<(i32, &str, StatusCode)> for ResponseStatus {
+    fn from(value: (i32, &str, StatusCode)) -> Self {
+        ResponseStatus(ResponseCode(value.0), value.1.to_owned(), value.2)
     }
 }
 
@@ -64,6 +73,16 @@ impl<T: Serialize> ResponseBody<T> {
     }
 }
 
+impl ResponseBody<()> {
+    pub fn error(code: ResponseCode, message: String) -> Self {
+        ResponseBody {
+            data: (),
+            code,
+            message,
+        }
+    }
+}
+
 #[derive(Serialize, Debug, Default)]
 pub struct PaginationData<T>
 where
@@ -71,4 +90,18 @@ where
 {
     pub items: Vec<T>,
     pub total: usize,
+}
+
+pub type Result<T> = crate::AppResult<ResponseBody<T>>;
+
+impl<T: Serialize> IntoResponse for ResponseBody<T> {
+    fn into_response(self) -> response::Response {
+        Json(self).into_response()
+    }
+}
+
+impl<T: Serialize> From<T> for ResponseBody<T> {
+    fn from(value: T) -> Self {
+        ResponseBody::ok(value)
+    }
 }

@@ -4,6 +4,8 @@ pub mod welcome;
 
 use crate::core::state::AppState;
 
-pub fn router(state: AppState) -> Router {
-    Router::new().layer(Extension(std::sync::Arc::new(state)))
+pub fn app(state: AppState) -> Router {
+    Router::new()
+        .nest("/welcome", welcome::router())
+        .layer(Extension(std::sync::Arc::new(state)))
 }

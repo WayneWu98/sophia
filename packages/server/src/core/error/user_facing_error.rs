@@ -20,13 +20,18 @@ macro_rules! user_facing_errors {
         }
 
     };
-    () => {};
 }
 
+use axum::http::StatusCode;
+
+#[rustfmt::skip]
 user_facing_errors!(
     UserFacingError,
-    (PermissionError, 401, 4001, "Permission Denied"),
-    (UnknownError, 400, 4000, "Bad Request"),
+    // (Variant, HTTP Status Code, Response Code, Message)
+    // Permission Error
+    (PermissionError, 4001, "Permission Denied", StatusCode::FORBIDDEN),
+    // Other Error
+    (UnknownError, 4000, "Bad Request", StatusCode::BAD_REQUEST),
 );
 
 impl Default for UserFacingError {

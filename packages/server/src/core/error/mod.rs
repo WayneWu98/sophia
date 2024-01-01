@@ -1,5 +1,5 @@
 mod user_facing_error;
-use axum::{response::IntoResponse, Json};
+use axum::{http::StatusCode, response::IntoResponse, Json};
 pub use user_facing_error::UserFacingError;
 
 use config::ConfigError;
@@ -30,9 +30,13 @@ pub enum AppError {
     #[error("Unknown error occurred: {0}")]
     #[meta(ResponseStatus::internal_error())]
     UnknownError(String),
+
+    #[error("Config error occurred: {0}")]
+    #[meta(ResponseStatus::internal_error())]
+    ConfigError(String),
 }
 
-pub type Result<T = ()> = std::result::Result<T, AppError>;
+pub type AppResult<T = ()> = std::result::Result<T, AppError>;
 
 impl From<&str> for AppError {
     fn from(value: &str) -> Self {
@@ -48,15 +52,11 @@ impl From<ConfigError> for AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
-        todo!("normalize error response");
-        let ResponseStatus(http_code, response_code, message) = self.meta();
-        let body = ResponseBody {
-            data: (),
-            code: response_code,
-            message,
-        };
-        // axum::response::Response::builder()
-        //     .status(http_code)
-        //     .body(Json(body))
+        let ResponseStatus(response_code, message, status_code) = self.meta();
+        (
+            status_code,
+            Json(ResponseBody::error(response_code, message)),
+        )
+            .into_response()
     }
 }
